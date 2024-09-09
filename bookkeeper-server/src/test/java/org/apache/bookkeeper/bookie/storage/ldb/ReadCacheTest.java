@@ -1,7 +1,6 @@
 package org.apache.bookkeeper.bookie.storage.ldb;
 
 import io.netty.buffer.*;
-import javafx.print.Collation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,10 +8,9 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
+
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(value = Parameterized.class)
