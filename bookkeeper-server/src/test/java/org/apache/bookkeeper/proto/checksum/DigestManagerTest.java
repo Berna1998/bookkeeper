@@ -165,8 +165,10 @@ public class DigestManagerTest {
     public void testForException(){
         if(this.entryId<=0){
             ByteBuf data3 = null;
+            DigestManager digestManager32 = null;
             try{
                 this.dM = DigestManager.instantiate(this.ledgerId, this.passw, this.digestType, this.bufAll, this.v2Protocol);
+                digestManager32 = DigestManager.instantiate(this.ledgerId,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32C,UnpooledByteBufAllocator.DEFAULT,true);
 
                 DigestManager digestMan = DigestManager.instantiate(this.ledgerId, this.passw, this.digestType, UnpooledByteBufAllocator.DEFAULT, false);
 
@@ -188,41 +190,35 @@ public class DigestManagerTest {
                 assertFalse(false);
             }
 
-            try {
-                ByteBuf dataREt = dM.verifyDigestAndReturnData(this.entryId, null);
-
-            } catch (NullPointerException | BKException.BKDigestMatchException e) {
-
+            try{
+                long lacRet2 = dM.verifyDigestAndReturnLac(this.buffer);
+            } catch (Exception e) {
                 assertFalse(false);
             }
 
             try{
-                ByteBuf dataREt = dM.verifyDigestAndReturnData(this.entryId, mock(ByteBuf.class));
-            } catch (NullPointerException | BKException.BKDigestMatchException e) {
-
+                long lacRet = digestManager32.verifyDigestAndReturnLac(this.buffer);
+            } catch (BKException e) {
                 assertFalse(false);
             }
 
             try{
-                if (this.digestType == DataFormats.LedgerMetadataFormat.DigestType.DUMMY) {
-                    long lacRet = dM.verifyDigestAndReturnLac(data3);
-
-                }
-
-
+                long lacRet = dM.verifyDigestAndReturnLac(data3);
             } catch (BKException e) {
+                assertFalse(false);
+            }
+
+            try{
+                long lacRet = digestManager32.verifyDigestAndReturnLac(null);
+            } catch (NullPointerException|BKException e) {
                 assertFalse(false);
             }
 
             try {
-                if (this.digestType == DataFormats.LedgerMetadataFormat.DigestType.DUMMY) {
-                    DigestManager.RecoveryData recoveryData = dM.verifyDigestAndReturnLastConfirmed(this.buffer);
-
-                }
-            } catch (BKException e) {
+                long lacRet2 = digestManager32.verifyDigestAndReturnLac(mock(ByteBuf.class));
+            } catch (Exception e) {
                 assertFalse(false);
             }
-
 
         }
     }

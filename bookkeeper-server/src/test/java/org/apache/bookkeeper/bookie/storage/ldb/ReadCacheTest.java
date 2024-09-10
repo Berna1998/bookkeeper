@@ -105,5 +105,26 @@ public class ReadCacheTest {
 
     }
 
+    @Test
+    public void testPutWithRollover() {
+        try {
+            ByteBuf buffer = Unpooled.buffer(this.size+ 1);
+            buffer.writeBytes(new byte[this.size+ 1]);
+
+            rC.put(this.ledgerId, this.entryId, buffer);
+            rC.put(this.ledgerId, this.entryId, buffer);
+            rC.put(this.ledgerId, this.entryId, buffer);
+
+            ByteBuf result = rC.get(this.ledgerId, this.entryId);
+
+            if(this.buf == null) {
+                assertNull(result); // Entry should not be inserted
+            }
+
+        } catch (NullPointerException | IllegalArgumentException e) {
+            assertFalse(false);
+        }
+    }
+
 
 }

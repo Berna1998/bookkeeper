@@ -101,6 +101,7 @@ public class ReadCache implements Closeable {
                 return;
             }
             int offset = currentSegmentOffset.getAndAdd(alignedSize);
+
             if (offset + entrySize > segmentSize) {
                 // Roll-over the segment (outside the read-lock)
             } else {
