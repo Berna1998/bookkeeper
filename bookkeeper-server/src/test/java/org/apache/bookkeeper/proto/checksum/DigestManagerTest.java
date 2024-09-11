@@ -191,8 +191,15 @@ public class DigestManagerTest {
             }
 
             try{
+                DigestManager digestV2 = DigestManager.instantiate(this.ledgerId,"".getBytes(),this.digestType,UnpooledByteBufAllocator.DEFAULT,true);
+                ReferenceCounted rF = digestV2.computeDigestAndPackageForSending(this.entryId, this.lastAdd, this.length, mock(ByteBuf.class),  null, this.flags);
+            } catch (NullPointerException | GeneralSecurityException  e) {
+                assertFalse(false);
+            }
+
+            try{
                 long lacRet2 = dM.verifyDigestAndReturnLac(this.buffer);
-            } catch (Exception e) {
+            } catch (BKException e) {
                 assertFalse(false);
             }
 
@@ -216,7 +223,7 @@ public class DigestManagerTest {
 
             try {
                 long lacRet2 = digestManager32.verifyDigestAndReturnLac(mock(ByteBuf.class));
-            } catch (Exception e) {
+            } catch (BKException e) {
                 assertFalse(false);
             }
 

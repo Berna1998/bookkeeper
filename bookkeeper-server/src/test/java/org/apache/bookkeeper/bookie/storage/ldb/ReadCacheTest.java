@@ -118,7 +118,7 @@ public class ReadCacheTest {
             ByteBuf result = rC.get(this.ledgerId, this.entryId);
 
             if(this.buf == null) {
-                assertNull(result); // Entry should not be inserted
+                assertNull(result);
             }
 
         } catch (NullPointerException | IllegalArgumentException e) {
