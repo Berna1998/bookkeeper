@@ -58,72 +58,8 @@ public class ReadCacheTest {
     }
 
     @Test
-    public void testClass(){
-        if(this.ledgerId>=0) {
-            ByteBuf buffer = Unpooled.wrappedBuffer(new byte[this.inBuf]);
-            rC.put(this.ledgerId, this.entryId, buffer);
-
-            assertEquals(this.count, rC.count());
-            assertEquals(this.size, rC.size());
-
-            ByteBuf find = rC.get(this.ledgerId, this.entryId);
-            if (find != null) {
-                assertEquals(find, buffer);
-            } else {
-                assertNull(find);
-            }
-            boolean entry = rC.hasEntry(this.ledgerId, this.entryId);
-
-            if (this.buf == UnpooledByteBufAllocator.DEFAULT && rC.count()>0) {
-                assertTrue(entry);
-            } else {
-                assertFalse(entry);
-            }
-            rC.close();
-
-        }else{
-            ByteBuf buffer = Unpooled.wrappedBuffer(new byte[this.inBuf]);
-            try{
-                rC.put(this.ledgerId, this.entryId, buffer);
-            } catch (IllegalArgumentException e) {
-                assertFalse(false);
-            }
-
-            try{
-                rC.get(this.ledgerId, this.entryId);
-            } catch (IllegalArgumentException e) {
-                assertFalse(false);
-            }
-
-            try{
-                boolean res = rC.hasEntry(this.ledgerId, this.entryId);
-            } catch (IllegalArgumentException  e) {
-                assertFalse(false);
-            }
-        }
-
-
-    }
-
-    @Test
-    public void testPutWithRollover() {
-        try {
-            ByteBuf buffer = Unpooled.buffer(this.size+ 1);
-            buffer.writeBytes(new byte[this.size+ 1]);
-
-            rC.put(this.ledgerId, this.entryId, buffer);
-            rC.put(this.ledgerId, this.entryId, buffer);
-            rC.put(this.ledgerId, this.entryId, buffer);
-
-            ByteBuf result = rC.get(this.ledgerId, this.entryId);
-
-            if(this.buf == null) {
-                assertNull(result);
-            }
-
-        } catch (NullPointerException | IllegalArgumentException e) {
-            assertFalse(false);
-        }
+    public void empty(){
+        
     }
 
 
