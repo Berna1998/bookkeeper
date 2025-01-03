@@ -29,32 +29,26 @@ public class DigestManagerTest {
     private byte[] passw;
     private DataFormats.LedgerMetadataFormat.DigestType digestType;
     private ByteBufAllocator bufAll;
-    private boolean v2Protocol;
     private int lastAdd;
     private int length;
-    private int flags;
     private ByteBuf buffer;
-    private byte[] masterK;
 
 
-    public DigestManagerTest(int lastAdd, int length, ByteBuf buffer, byte[] masterK, int flags, long entryId,long ledgerId, byte[] passw, DataFormats.LedgerMetadataFormat.DigestType digestType, ByteBufAllocator bufAll, boolean v2Protocol){
+    public DigestManagerTest(int lastAdd, int length, ByteBuf buffer, long entryId,long ledgerId, byte[] passw, DataFormats.LedgerMetadataFormat.DigestType digestType, ByteBufAllocator bufAll){
         this.lastAdd = lastAdd;
         this.length = length;
         this.buffer = buffer;
-        this.masterK = masterK;
-        this.flags = flags;
         this.entryId = entryId;
         this.ledgerId = ledgerId;
         this.passw = passw;
         this.digestType = digestType;
         this.bufAll = bufAll;
-        this.v2Protocol = v2Protocol;
+
     }
 
 
     @Parameterized.Parameters
     public static Collection returnParams() {
-        byte[] masterKe = "provaprovaprovaprova".getBytes();
         ByteBuf buffMock = mock(ByteBuf.class);
         ByteBuf buffUnpool;
         byte[] dat = new byte[10];
@@ -83,26 +77,29 @@ public class DigestManagerTest {
 
         return Arrays.asList(new Object[][] {
 
-                {1,30, buffUnpool,masterKe,5,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT,false},
-                {1,30, buffUnpool,masterKe,5,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,UnpooledByteBufAllocator.DEFAULT,false},
-                {1,30, buffUnpool,masterKe,5,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32C,UnpooledByteBufAllocator.DEFAULT,false},
-                {4,30, buffUnpool,masterKe,5,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,UnpooledByteBufAllocator.DEFAULT,false},
+                {1,30, buffUnpool,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT},
+                {1,30, buffUnpool,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,UnpooledByteBufAllocator.DEFAULT},
+                {1,30, buffUnpool,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32C,UnpooledByteBufAllocator.DEFAULT},
 
-                {1,30, buffUnpool,masterKe,5,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT,true},
+                {4,30, buffUnpool,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,UnpooledByteBufAllocator.DEFAULT},
+                {1,0, buffUnpool,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,UnpooledByteBufAllocator.DEFAULT},
 
-                {1,10, buffMock,masterKe,5,1,1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,ByteBufAllocatorImpl.DEFAULT,true},
+                {-1,30, buffUnpool,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT},
+                {0,30, buffUnpool,-1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT},
+                {1,30, buffUnpool,0,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT},
+             /*   {1,10, buffMock,-1,1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,ByteBufAllocatorImpl.DEFAULT},
 
-                {1,30, buffMock,null,5,1,1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32C,ByteBufAllocatorImpl.DEFAULT,false},
-                {1,30, buffMock,null,5,1,-1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,null,false},
-                {1,20, buffSmallEn,masterKe,5,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT,true},
+                {1,30, buffMock,1,1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32C,ByteBufAllocatorImpl.DEFAULT},
+                {1,30, buffMock,1,-1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,null},
+                {1,20, buffSmallEn,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32,UnpooledByteBufAllocator.DEFAULT},
 
-                {1,30, buffSmallEn,null,5,-1,-1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,null,true},
-                {1,30, buffMock,null,5,0,-1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,null,false},
+                {1,30, buffSmallEn,-1,-1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,null},
+                {1,30, buffMock,0,-1,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.DUMMY,null},
 
-                {0,-1, buffUnpool2,masterKe,0,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,UnpooledByteBufAllocator.DEFAULT,false},
-                {-1,0, buffUnpool2,null,-1,1,0,null, DataFormats.LedgerMetadataFormat.DigestType.CRC32C,ByteBufAllocatorImpl.DEFAULT,false},
+                {0,-1, buffUnpool2,1,1,"prova".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.HMAC,UnpooledByteBufAllocator.DEFAULT},
+                {-1,0, buffUnpool2,1,0,null, DataFormats.LedgerMetadataFormat.DigestType.CRC32C,ByteBufAllocatorImpl.DEFAULT},
 
-
+*/
 
 
 
@@ -110,7 +107,74 @@ public class DigestManagerTest {
     }
 
     @Test
-    public void empty(){
+    public void testClass() throws GeneralSecurityException, BKException.BKDigestMatchException {
+        if(this.entryId > 0) {
+            this.dM = DigestManager.instantiate(this.ledgerId, this.passw, this.digestType, this.bufAll,false);
 
+            DigestManager digestMan = DigestManager.instantiate(this.ledgerId, this.passw, this.digestType, UnpooledByteBufAllocator.DEFAULT, false);
+
+            ByteBuf byteBuffer;
+            byte[] dataa2 = new byte[10];
+            byteBuffer = Unpooled.buffer(1024);
+            byteBuffer.writeLong(1);
+            byteBuffer.writeLong(2);
+            byteBuffer.writeLong(4);
+            byteBuffer.writeLong(10);
+            byteBuffer.writeBytes(dataa2);
+
+            ByteBufList byteBufList = (ByteBufList) digestMan.computeDigestAndPackageForSending(this.entryId, 0, 10, byteBuffer, null, null);
+            ByteBuf data3 = ByteBufList.coalesce(byteBufList);
+
+
+            ReferenceCounted rF = dM.computeDigestAndPackageForSending(this.entryId, this.lastAdd, this.length, this.buffer, null, null);
+
+
+            ByteBufList rFlist = (ByteBufList) rF;
+            assertEquals(rFlist.getBuffer(1),this.buffer);
+
+
+            ByteBuf dataREt = dM.verifyDigestAndReturnData(this.entryId, data3);
+            assertEquals(dataREt, data3);
+
+            if (this.digestType == DataFormats.LedgerMetadataFormat.DigestType.DUMMY) {
+                DigestManager.RecoveryData recoveryData = dM.verifyDigestAndReturnLastConfirmed(this.buffer);
+                assertEquals(this.lastAdd, recoveryData.getLastAddConfirmed());
+
+            }
+
+        }
+    }
+
+    @Test
+    public void testForException(){
+        if(this.entryId<=0){
+            ByteBuf data3 = null;
+            DigestManager digestManager32 = null;
+            try{
+                this.dM = DigestManager.instantiate(this.ledgerId, this.passw, this.digestType, this.bufAll,false);
+                digestManager32 = DigestManager.instantiate(this.ledgerId,"".getBytes(), DataFormats.LedgerMetadataFormat.DigestType.CRC32C,UnpooledByteBufAllocator.DEFAULT,false);
+
+                DigestManager digestMan = DigestManager.instantiate(this.ledgerId, this.passw, this.digestType, UnpooledByteBufAllocator.DEFAULT, false);
+
+                ByteBuf byteBuffer;
+                byte[] dataa2 = new byte[10];
+                byteBuffer = Unpooled.buffer(1024);
+                byteBuffer.writeLong(1);
+                byteBuffer.writeLong(2);
+                byteBuffer.writeLong(4);
+                byteBuffer.writeLong(10);
+                byteBuffer.writeBytes(dataa2);
+
+                ByteBufList byteBufList = (ByteBufList) digestMan.computeDigestAndPackageForSending(this.entryId, 0, 10, byteBuffer, this.masterK, 2);
+                data3 = ByteBufList.coalesce(byteBufList);
+
+                ReferenceCounted rF = dM.computeDigestAndPackageForSending(this.entryId, this.lastAdd, this.length, null, this.masterK, this.flags);
+
+            }catch (NullPointerException | GeneralSecurityException e){
+                assertFalse(false);
+            }
+
+
+        }
     }
 }

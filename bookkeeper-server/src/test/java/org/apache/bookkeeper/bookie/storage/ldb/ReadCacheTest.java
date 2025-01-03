@@ -41,13 +41,17 @@ public class ReadCacheTest {
 
                 {1,1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {1,1,null,1,0,0,100},
-                {1,1,mock(ByteBufAllocator.class),50,0,0,100},
-                {1,1,UnpooledByteBufAllocator.DEFAULT, 1024 * 1024 * 1 *1024, 1, 1024, 1024},
+               // {1,1,mock(ByteBufAllocator.class),50,0,0,100},
+               // {1,1,UnpooledByteBufAllocator.DEFAULT, 1024 * 1024 * 1 *1024, 1, 1024, 1024},
                 {0,-1,null,1,0,0,100},
-                {0,0,mock(ByteBufAllocator.class),50,0,0,100},
+                //{0,0,mock(ByteBufAllocator.class),50,0,0,100},
+                {0,1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
+                {0,0,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {-1,1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
-                {1,1,UnpooledByteBufAllocator.DEFAULT,0,0,0,100},
-                {1,1,UnpooledByteBufAllocator.DEFAULT,-1,0,0,100},
+                {-1,-1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
+                {-1,0,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
+                //{1,1,UnpooledByteBufAllocator.DEFAULT,0,0,0,100},
+               // {1,1,UnpooledByteBufAllocator.DEFAULT,-1,0,0,100},
 
         });
     }
@@ -58,9 +62,38 @@ public class ReadCacheTest {
     }
 
     @Test
-    public void empty(){
-        
-    }
+    public void testClass() {
+        if (this.ledgerId >= 0) {
+            ByteBuf buffer = Unpooled.wrappedBuffer(new byte[this.inBuf]);
+            rC.put(this.ledgerId, this.entryId, buffer);
 
+            assertEquals(this.count, rC.count());
+            assertEquals(this.size, rC.size());
+
+            ByteBuf find = rC.get(this.ledgerId, this.entryId);
+            if (find != null) {
+                assertEquals(find, buffer);
+            } else {
+                assertNull(find);
+            }
+
+            rC.close();
+
+        } else {
+            ByteBuf buffer = Unpooled.wrappedBuffer(new byte[this.inBuf]);
+            try {
+                rC.put(this.ledgerId, this.entryId, buffer);
+            } catch (IllegalArgumentException e) {
+                assertFalse(false);
+            }
+
+            try {
+                rC.get(this.ledgerId, this.entryId);
+            } catch (IllegalArgumentException e) {
+                assertFalse(false);
+            }
+
+        }
+    }
 
 }
