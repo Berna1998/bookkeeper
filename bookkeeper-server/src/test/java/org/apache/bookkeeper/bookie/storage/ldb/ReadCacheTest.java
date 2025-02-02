@@ -1,6 +1,7 @@
 package org.apache.bookkeeper.bookie.storage.ldb;
 
 import io.netty.buffer.*;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,21 +38,31 @@ public class ReadCacheTest {
 
     @Parameterized.Parameters
     public static Collection returnParams() {
+
         return Arrays.asList(new Object[][] {
 
                 {1,1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {1,1,null,1,0,0,100},
-               // {1,1,mock(ByteBufAllocator.class),50,0,0,100},
-               // {1,1,UnpooledByteBufAllocator.DEFAULT, 1024 * 1024 * 1 *1024, 1, 1024, 1024},
+
+
                 {0,-1,null,1,0,0,100},
-                //{0,0,mock(ByteBufAllocator.class),50,0,0,100},
+
                 {0,1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {0,0,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {-1,1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {-1,-1,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
                 {-1,0,UnpooledByteBufAllocator.DEFAULT,10000,1,128,100},
-                //{1,1,UnpooledByteBufAllocator.DEFAULT,0,0,0,100},
-               // {1,1,UnpooledByteBufAllocator.DEFAULT,-1,0,0,100},
+
+                //Sopra base, sotto altri
+                {1,1,UnpooledByteBufAllocator.DEFAULT, 1024 * 1024 * 1 *1024, 1, 1024, 1024},
+
+                {0,1,UnpooledByteBufAllocator.DEFAULT,10,0,0,1024},
+                {1,1,UnpooledByteBufAllocator.DEFAULT,10000,1,1024,1024},
+
+               // {1,1,mock(ByteBufAllocator.class),50,0,0,100},
+                //{0,0,mock(ByteBufAllocator.class),50,0,0,100},
+               // {1,1,UnpooledByteBufAllocator.DEFAULT,0,0,0,100},
+                //{1,1,UnpooledByteBufAllocator.DEFAULT,-1,0,0,100},
 
         });
     }
@@ -67,6 +78,7 @@ public class ReadCacheTest {
             ByteBuf buffer = Unpooled.wrappedBuffer(new byte[this.inBuf]);
             rC.put(this.ledgerId, this.entryId, buffer);
 
+            System.out.println(rC.count());
             assertEquals(this.count, rC.count());
             assertEquals(this.size, rC.size());
 
@@ -95,5 +107,31 @@ public class ReadCacheTest {
 
         }
     }
+
+
+    @Test
+    public void testPutWithRollover() {
+        try {
+
+            ByteBuf buffer = Unpooled.wrappedBuffer(new byte[this.inBuf]);
+
+            // Riempire la cache fino al limite
+            for (int i = 0; i < (this.maxCacheSize) / (this.inBuf); i++) {
+                rC.put(ledgerId, entryId + i, buffer);
+            }
+
+            rC.put(this.ledgerId, this.entryId, buffer);
+
+            ByteBuf result = rC.get(this.ledgerId, this.entryId);
+
+            if(this.buf == null) {
+                assertNull(result);
+            }
+
+        } catch (NullPointerException | IllegalArgumentException e) {
+            assertFalse(false);
+        }
+    }
+
 
 }
